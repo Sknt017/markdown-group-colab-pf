@@ -25,11 +25,12 @@ Seleccionar un elemento que se tenga en el catalog dara una vista avanzada con p
 
 La seccion de APIs es una vista general que se tiene de las APIs que se tengan activas. se puede ver en que plataforma esta, quien es el dueño, su tipo, de que ambiente consiste o que parte de SDLC pertenece, tags y en la columna ACTIONS es para ver o editar la API ya de forma directa en la plataforma que se encuentra
 
-## seccion Docs
 
 
 
-## seccion Resources
+
+
+
 
 ## seccion aprobaciones
 
