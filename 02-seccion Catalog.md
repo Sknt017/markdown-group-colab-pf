@@ -94,11 +94,16 @@ si no se tiene ninguno, se indicara que falta una anotacion para que se relacion
 
 ### SYSTEM
 
-En esta columna, se indica de que componente de plataforma se trata el mismo de la fila
+En esta columna, se indica de que componente de plataforma se trata el mismo de la fila.
+
+_needed catalog system view to be annotaded above this field_
 
 ### OWNER
 
 En esta columna, se muestra el dueño o cuenta asignada a el componente.
+
+_needed catalog owner view to be annotaded above this field_
+
 
 ### ACTIONS
 
