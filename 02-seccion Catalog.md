@@ -111,5 +111,3 @@ En 'ACTIONS' IDP permite ser redirigido a el recurso en si de forma directa ya s
 
 Seleccionar un elemento que se tenga en el catalog dara una vista avanzada con propiedades del mismo. en esta vista tambien se tienen las acciones que redirigen a el recurso en si en la plataforma que se encuentre:
 
-![Vista propiedades catalog](assets/catalog/properties-view-catalog-item-image.png)
-
