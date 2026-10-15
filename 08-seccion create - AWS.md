@@ -284,3 +284,278 @@ Se muestra un resumen de lo que se recibio y lo que se va a realizar.
 
 ![vista de paso 5 - resumen - creacion de microservicio en AWS](assets/create/AWS-microservice/create-AWS-microservice-review-image.png)
 
+### Branch protection (GitFlow)
+
+Aplica la protección de ramas de la forma GitFlow a un repositorio ya existente. El origen sale de IDP_SCM_PROVIDER / IDP_ENABLE_* en el .env: GitHub (branch protection) o CodeCommit (approval rules). Usa las ramas y aprobadores de IDP_GITFLOW_ENV_* (PR obligatorio, N approvals). No crea repo ni pipelines.
+
+_la ubicacion de origen de los repositorios es automatica_
+
+#### paso 2: Repositorio y reglas GitFlow (.env)
+
+En este paso se debe seleccionar un repositorio que se encuentre en CodeCommit. al seleccionar uno aplicara las politicas que se pueden observar en este paso: 
+
+![vista paso 2 - branch protection](assets/create/AWS-branch-policies/create-AWS-codecommit-branch-policies-gitflow-image.png)
+
+
+#### paso 3: Review
+
+Se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista paso 3 - review](assets/create/AWS-branch-policies/create-AWS-codecommit-branch-policies-gitflow-review-image.png)
+
+### Branch protection (Trunk)
+
+Aplica protección a la rama trunk de un repositorio ya existente. El origen sale de IDP_SCM_PROVIDER / IDP_ENABLE_* en el .env: GitHub (branch protection) o CodeCommit (approval rules). Usa IDP_TRUNK_MAIN_APPROVALS (PR obligatorio, N aprobadores). No crea repo ni pipelines.
+
+_la ubicacion de origen de los repositorios es automatica_
+
+#### paso 2: Repositorio y reglas GitFlow (.env)
+
+En este paso se debe seleccionar un repositorio que se encuentre en CodeCommit. al seleccionar uno aplicara las politicas que se pueden observar en este paso: 
+
+
+![vista - paso 2 - branch protection trunk](assets/create/AWS-branch-policies/create-AWS-codecommit-branch-policies-trunk-image.png)
+
+
+#### paso 3: Review
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista - paso 3 - branch protection trunk](assets/create/AWS-branch-policies/create-AWS-codecommit-branch-policies-trunk-review-image.png)
+
+### Microservicio — Preview efímero (repo existente)
+
+Este servicio, habilita una preview por PR en un microservicio que ya exista (GitHub o CodeCommit; GitFlow o Trunk). Crea dos CodePipelines V2 separados del pipeline estable: 
+
+- Uno despliega al abrir/actualizar PR y otro destruye al cerrar. 
+
+Estado Terraform en microservices/ephemeral/{preview-id}/{repo}. No modifica pipelines ni branch protection existentes.
+
+#### paso 1: Origen de repositorios
+
+En el primer paso se debe seleccionar la region de origen para los repositorios de CodeCommit del IaC
+
+los stacks de terraform se publican en el repo repos-microservices-cluster en la rama main en la region us-east-1. 
+
+![vista paso 1, origen de repositorios - preview efimero de microservicio](assets/create/AWS-microservice/create-AWS-microservice-ephemeral-preview-image.png)
+
+#### paso 2: Microservicio existente
+
+en este paso, se debe definir la estrategia git del repo. aqui, se define la rama base del PR trigger. Debe coincidir con la estrategia ya configurada del microservicio.
+
+al seleccionar un repositorio existente se relacina un pipline existente por ambiente
+
+![vista paso 2 - creacion ambiente efimero de microesrvicio](assets/create/AWS-microservice/create-AWS-microservices-ephemeral-select-repo-image.png)
+
+#### paso 3: AWS / EKS
+
+en este paso se confirma los recursos de EKS que se van acrear y con cuales namespaces
+
+![vista de paso 3 - aclaracion de creacion de cluster EKS](assets/create/AWS-microservice/create-AWS-microservice-ephemeral-EKS-check-image.png)
+
+#### Paso 4: preview 
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista de paso 4 - preview](assets/create/AWS-microservice/create-AWS-microservice-ephemeral-review-image.png)
+
+
+### AWS Microservice Secrets (SM + EKS)
+
+este servicio es para la creacion de secretos para los microservicios en AWS Secrets Manager, enlaza el stack Terraform del microservicio en repos-microservices-cluster (Secret K8s o ExternalSecret) y actualiza .env.example en el repo del microservicio (GitHub o CodeCommit).
+
+#### paso 1: origenes de los repos
+
+es este paso se debe indicar el orgien destino del IaC para la plantilla a ejecutar y publicacion de la plantilla stack Terraform en las regiones.
+
+_el origen de los repos se realiza de forma automatica_
+
+![vista de paso 1 - creacion de secretos para microservicios - origen repos](assets/create/AWS-microservice/create-AWS_microservice-secret-regloc-image.png)
+
+#### paso 2: Secreto y microservicio
+
+en este paso, se debe seleccionar un servicio desplegado para generar el secreto. ya con ese dato, se indican los secretos que sean necesarios y se realiza una sincronizacion:
+
+![vista de paso 2 - secretos de microservicio](assets/create/AWS-microservice/create-AWS-microservice-secret-sel-ms-image.png)
+
+#### paso 3: Review
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista de paso 3 - creacion de secreto de microservicio - review](assets/create/AWS-microservice/create-AWS-microservice-secret-review-image.png)
+
+### Microservicio — Desplegar imagen (EKS)
+
+esta accion, despliega una imagen ECR en un microservicio del cluster e actualiza terraform.tfvars, hace push y terraform apply. Estrategias: Rolling Update, Canary por réplicas, o Blue-Green (slot blue/green + switch del Service). En production, rolling/canary/blue-green piden aprobación en el IDP (mismo rol RBAC que Lambda). Abortar o completar se ejecuta al momento. Pensado para producción tras el pipeline que solo publica la imagen en main/production.
+
+#### Paso 1: Origenes de los repos
+
+En este paso, se debe relacionar la region destion para IaC del repositorio. Los stacks Terraform se publican en repos-microservices-cluster (us-east-1) (rama main). Configuración en `idp.eks.microservicesCluster.*.`
+
+_el origen de los repos se realiza de forma automatica_
+
+![vista de paso 1 - origen de repo - desplegar EKS microservico](assets/create/AWS-microservice/create-AWS-microservice-EKS-codecommit-loc-image.png)
+
+#### paso 2: Microservicio y estrategia
+
+En este paso, se debe seleccionar el microservicio a desplegar y la estrategia para el despliegue del componente
+
+- **Rolling update:** hacer un reemplazo gradual del deplyment actual del microservicio
+- **Canary:** hacer un despliegue porcentual del microservicio al ambiente
+- **blue-green:** replica el ambiente actual y realiza switch con los servicios activos
+
+otros requisitos es relacionar el ambiente el microservicio ya desplegado, el URI de imagen de contenedor como se hace en AWS CLI, indica la URI de una imagen en Amazon ECR o examina repositorios/tags de la cuenta y región de despliegue; 
+
+![vista de paso 2 - rolling update - desplegar imagen EKS](assets/create/AWS-microservice/create-AWS-microservice-EKS-deployment-rolling-image.png) . 
+
+#### paso 3: Review
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista de paso 3 - Review](assets/create/AWS-microservice/create-AWS-microservice-EKS-deployment-review-image.png)
+
+### AWS CloudFront — Sitio estático (S3 + CI/CD)
+
+en este servicio, se crea un bucket S3 compartido con prefijo por ambiente, OAC y CloudFront por cada ambiente definido en IDP_GITFLOW_ENV_* o IDP_TRUNK_ENV_* (.env), un repo frontend pipelines GitFlow (rama por ambiente) o Trunk (un pipeline multi-stage) y stacks Terraform de infra y CI en el repo IaC.
+
+#### paso 1: configuracion
+
+es este paso se debe indicar la región donde está el repositorio CodeCommit del repositorio IaC en CodeCommit y las plantillas Terraform en CodeCommit. Se usa al clonar y publicar stacks.
+
+![vista de paso 1 - sitio estatico cloudfront - origen repo](assets/create/AWS-cloudfront/create-AWS-cloudfront-static-site-repo-loc-image.png)
+
+tambien, se debe indicar un nombre para el proyecto el nombre tiene que ser base en minúsculas. se creara Un solo bucket S3 con carpetas por ambiente (dev/, qa/, …), un CloudFront por ambiente apuntando a su prefijo, repo mi-app-frontend y pipelines por ambiente. 
+
+![vista de paso 1 - sitio estatico cloudfront - nombre del proyecto](assets/create/AWS-cloudfront/create-AWS-cloudfront-static-site-project-name-image.png)
+
+La descripccion puede ser corta y es opcional.
+
+La estrategia de branching es por defecto GitFlow. Pero tambien puede cambiarse a trunk-based. 
+
+En caso de ser diferente, el objeto raiz del sitio estatico. por defecto es index.html
+
+en caso particular, ingresar un dominio personalizado. El servicio puede confirmar la disponibilidad de dominio consuktando las hosted zones en route 53. puede dejar vacío los campos. hacer esto, usara solo la URL de CloudFront (*.cloudfront.net). Al indicar dominio, se necesita un certificado ACM en `us-east-1` que lo cubra (wildcard recomendado).
+
+![vista de paso 1 - sitio estatico cloudfront - estrategia y dominio](assets/create/AWS-cloudfront/create-AWS-cloudfront-static-site-strategy-domain-image.png)
+
+#### paso 2: review
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista de paso 2 - Review](assets/create/AWS-cloudfront/create-AWS-cloudfront-static-site-review-image.png)
+
+### CloudFront — Preview efímero por PR (existente)
+
+en esta accion, se habilita una preview por PR en un sitio CloudFront ya desplegado por el IDP. Al abrir/actualizar un PR compila la rama y despliega a `s3://{proyecto}/preview-pr-{id}/` con una distribución CloudFront efímera etiquetada (`idp-lifecycle=ephemeral`). Al cerrar el PR, se destruyen los recursos.
+
+#### paso 1: origen de los repos
+
+_el origen de los repos se realiza de forma automatica. se usara codeCommit para la generacion de los recursos necesarios. esto es definido de forma automatica por la configuracion en los .envs_
+
+#### paso 2: Sitio CloudFront y preview por PR
+
+en este paso, se debe indicar que estrategia de branching se tomara para el ambiente efimero y su preview es bajo estos parametros:
+  - Rama base GitFlow: develop
+  - Rama base Trunk: main 
+  - Stack de referencia: develop
+  - Namespace: `ephemeral-<preview-id>`
+  - Réplicas: 1 
+
+ya mas adelante, se selecciona un sitio cloudfront estable que se encuentran en la lista desplegable: 
+
+y al finalizar, se debe indicar un tiempo maximo operativo del ambiente efimero.
+
+![vista de paso 2 - preview efimero de cloudfront - sitio y TTL](assets/create/AWS-cloudfront/create-AWS-cloudfront-ephemeral-preview-avaliable-site-n-ttl-image.png)
+
+#### paso 3: review
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista de paso 3 - sitio efimero cloudfront - preview](assets/create/AWS-cloudfront/create-AWS-cloudfront-ephemeral-site-review-image.png)
+
+### CloudFront — Desplegar (Canary / Blue-Green)
+
+este servicio, despliega un artefacto ya publicado por el pipeline de main. Canary CD:  (hasta 15% de staging). Canary Lambda@Edge: peso 10-80% en la URL oficial. Blue-Green: OriginPath 100% a green. En prod, canary y blue-green 
+
+estos solicitan aprobación dentro de IDP (mismo rol RBAC que Lambda/EKS). Estos se pueden ver en la seccion aprobaciones 
+
+#### paso 1: sitio y estrategia
+
+![vista de paso 1 - cloudfront desplegar - sitio y estrategia](assets/create/AWS-cloudfront/create-AWS-cloudfront-deploy-site-strategy-image.png)
+
+en este paso, se debe seleccionar un sitio cloudfront estable de la lista desplegable
+
+Tambien se debe relacionar:
+- ambiente (por defecto prod)
+- estrategia de despliegue (por defecto canary 15%)
+- accion canary (por defecto artefacto a green + % a stagging)
+  - en caso de artefacto a green + % a stagging se debe indicar forma de la nueva enrutacion(enrutacion por defecto pruebas - header) y version de artefacto (por defecto latest)
+    - en caso de enrutacion de nueva version de peso real se debe indicar el porcentaje canary (por defecto 15% maximo AWS) y componente (por defecto: latest)
+- las otras acciones son para despliegue blue-green o abortar despliegue.
+
+
+#### paso 2: review
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista de paso 2 - desplegar cloudfront review](create-AWS-cloudfront-deploy-review-image.png)
+
+### AWS S3 — Subir archivos
+
+esta accion, sube archivos a un bucket S3 que ya exista. 
+
+#### paso 1: Destino en AWS
+
+en este paso se elige bucket, carpeta existente o raíz, o crea una carpeta nueva y sube los archivos dentro. Usa «AWS S3 Bucket» si aún no se tiene bucket.
+
+![vista de paso 1 - subir archivos a S3 - seleccion](assets/create/AWS-S3-bucket/create-AWS-S3-bucket-image.png)
+
+por defecto se encuentran buckets que ya esten asociados a la sesion inciada. cuando se selecciona 1 se debe indicar la carpeta destino. al ser opcional, si no se especifica, el servicio almacenara por defecto en la raiz del bucket.
+
+![vista de paso 1 - subir archivos a S3 - seleccion bucket](assets/create/AWS-S3-bucket/create-AWS-S3-bucket-upload-to-bucket-image.png)
+
+
+ya para finalizar, se debe adjuntar los archivos a subir. se pueden subir archivos hasta los limites:
+
+- maximo 10 MB por archivo
+- un maximo de 20 MB en total de archivos
+- maximo 10 archivos
+
+![vista de paso 1 - subir archivos a S3 - subir archivos](assets/create/AWS-S3-bucket/create-AWS-S3-bucket-upload-files-section-image.png)
+
+
+#### paso 2: review
+
+En este paso, se muestra un resumen de lo que se recibio y lo que se va a realizar.
+
+![vista de paso 2 - AWS S3 subir archivos - review](assets/create/AWS-S3-bucket/create-AWS-S3-bucket-upload-file-review-image.png)
+
+
+### Eliminar recurso AWS
+
+esta accion, se genera una solicitud para borrar un recurso AWS (S3, Lambda, CloudFront, CodePipeline, CodeBuild, CodeCommit, GitHub o ECR). en este servicio siempre se pide aprobación. sin ella, no se realizan cambios en AWS. En ningún ambiente.
+
+#### paso 1: Cuenta y tipo
+
+se debe seleccionar de que componente se va a eliminar. se debe indicar el dueño (owner) para eliminar el recurso en GitHub y indicar el nombre del recurso a eliminar.
+
+![vista de paso 1 - eliminar recurso de AWS](assets/create/AWS-delete/create-AWS-delete-AWS-resource-image.png)
+
+#### paso 2: También borrar (opcional)
+
+En este paso, se indican campos para eliminar otros recursos en caso de ser necesario.
+
+![vista de paso 2 - eliminar recurso de AWS](assets/create/AWS-delete/create-AWS-delete-AWS-delete-others-image.png)
+
+
+#### paso 3: Confirmación 
+
+Este paso, es un prompt de verificacion para confirmar la eliminacion 
+
+![vista de paso 3 - eliminar recuso de AWS](assets/create/AWS-delete/create-AWS-delete-AWS-prompt-check-image.png)
+
+#### paso 4: review
+
+
+![vista de paso 4 - eliminar recurso de AWS](assets/create/AWS-delete/create-AWS-delete-AWS-review-image.png)
+
