@@ -1,3 +1,24 @@
+## tabla de contenido
+
+- [plantilla de desplegar recurso en AWS](#seccion-create---desplegar-recurso-aws)
+  - [AWS S3 Bucket](#aws-s3-bucket)
+  - [AWS S3 Bucket - actualizar](#aws-s3-bucket--actualizar)
+  - [AWS S3 Bucket - eliminar](#aws-s3-bucket---eliminar)
+  - [Lambda Function](#lambda-function)
+  - [Lambda -- preview efimero por PR](#lambda--preview-efímero-por-pr-existente)
+  - [Desplegar Lambda (blue-green / canary)](#desplegar-lambda-blue-green--canary)
+  - [Microservicio AWS — CI + EKS (Git strategy)](#microservicio-aws--ci--eks-git-strategy)
+  - [Branch protection (GitFlow)](#branch-protection-gitflow)
+  - [Branch protection (Trunk)](#branch-protection-trunk)
+  - [Microservicio — Preview efímero (repo existente)](#microservicio--preview-efímero-repo-existente)
+  - [AWS Microservice Secrets (SM + EKS)](#aws-microservice-secrets-sm--eks)
+  - [Microservicio — Desplegar imagen (EKS)](#microservicio--desplegar-imagen-eks)
+  - [AWS CloudFront — Sitio estático (S3 + CI/CD](#aws-cloudfront--sitio-estático-s3--cicd)
+  - [CloudFront — Preview efímero por PR (existente)](#cloudfront--preview-efímero-por-pr-existente)
+  - [CloudFront — Desplegar (Canary / Blue-Green)](#cloudfront--desplegar-canary--blue-green)
+  - [AWS S3 — Subir archivos](#aws-s3--subir-archivos)
+  - [Eliminar recurso AWS](#eliminar-recurso-aws)
+
 ## seccion create - desplegar recurso AWS
 
 ![vista incial seccion create](assets/create/AWS-S3-bucket/create-image1.png)
